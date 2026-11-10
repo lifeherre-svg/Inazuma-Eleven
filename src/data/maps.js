@@ -185,7 +185,7 @@ const ribera = {
       else: [{ say: 'Oye, ¿nos dejarás jugar algún día en vuestro campo?' }] },
     ] },
     { id: 'umino', name: 'Capitán Umino', x: 36, y: 25, dir: 'left', look: LOOKS.fisher, script: [
-      { if: { notFlag: 'halcones_beaten' }, then: rivalMatch('halcones_puerto', 5, 'halcones_dummy',
+      { if: { notFlag: 'halcones_beaten' }, then: rivalMatch('halcones_puerto', 5, 'halcones_match_won',
         ['¡Ahoy! ¿Venís a jugar contra los Halcones del Puerto?', 'Mis chicos han estado esperando un rival de verdad. ¡Al campo!'],
         ['¡Qué partido! El Rayo Azul vuelve a estar vivo. Contad con nosotros como amigos.'],
         ['¡Buen intento! El mar no perdona... ¡pero siempre podéis volver!']),

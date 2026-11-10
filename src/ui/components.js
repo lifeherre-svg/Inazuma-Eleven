@@ -120,7 +120,8 @@ export function toast(text, { type = 'info', icon = null, duration = 2800 } = {}
 export function modal({ title, body, buttons = [{ text: 'Cerrar', value: null }], cls = '', dismissable = true }) {
   return new Promise((resolve) => {
     const close = (v) => { audio.play('click'); overlay.remove(); document.removeEventListener('keydown', onKey); resolve(v); };
-    const onKey = (e) => { if (e.key === 'Escape' && dismissable) close(null); };
+    // stopPropagation: evita que la misma pulsación llegue al juego (y reabra el menú).
+    const onKey = (e) => { if (e.key === 'Escape' && dismissable && overlay === [...document.querySelectorAll('.modal-overlay')].pop()) { e.stopPropagation(); close(null); } };
     const overlay = h('div', { class: 'modal-overlay', onclick: (e) => { if (e.target === overlay && dismissable) close(null); } },
       h('div', { class: `modal ${cls}` },
         title ? h('h2', {}, title) : null,

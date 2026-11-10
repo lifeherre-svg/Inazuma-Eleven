@@ -39,6 +39,8 @@ try {
     }
   };
   const closeModals = async () => { for (let i = 0; i < 5 && await page.$('.modal-overlay'); i++) { await page.keyboard.press('Escape'); await sleep(150); } };
+  // El menú del juego no debe reabrirse por la misma pulsación de Escape.
+  const menuOpen = () => page.evaluate(() => !!document.querySelector('.menu-overlay'));
 
   await page.goto(`http://localhost:${PORT}/`);
   await page.evaluate(() => localStorage.clear());
@@ -149,8 +151,50 @@ try {
   const loaded = await page.evaluate(() => { const r = window.__app.saves.load('slot1'); return r.ok && r.state.roster.length; });
   check(loaded >= 11, 'Carga de la ranura 1 verificada');
 
+  // Instalaciones: tienda, entrenamiento (minijuego), torneos y ojeadores
+  const shopP = page.evaluate(() => window.__app.facilities.shop('tienda_villa'));
+  await page.waitForSelector('text=Comprar');
+  const money0 = await page.evaluate(() => window.__app.game.state.money);
+  await page.click('.item-card .btn.primary >> nth=0');
+  check(await page.evaluate((m) => window.__app.game.state.money < m, money0), 'Compra en la tienda');
+  await shot('13_shop');
+  await closeModals(); await shopP;
+
+  const trP = page.evaluate(() => window.__app.facilities.training());
+  await page.waitForSelector('.drills');
+  await page.click('.training .player-card >> nth=0');
+  await page.click('text=¡Entrenar!');
+  await page.waitForSelector('.minigame');
+  await shot('14_minigame');
+  for (let i = 0; i < 3; i++) { await sleep(400); await page.keyboard.press('Space'); }
+  await sleep(1200);
+  check(await page.evaluate(() => window.__app.game.state.stats.trainings === 1), 'Sesión de entrenamiento completada');
+  await closeModals(); await trP;
+
+  const tP = page.evaluate(() => window.__app.facilities.tournaments());
+  await page.waitForSelector('.tour-grid');
+  await shot('15_tournaments');
+  await closeModals(); await tP;
+  await sleep(200);
+  check(!(await menuOpen()), 'Cerrar un modal con Escape no abre el menú del juego');
+
+  const sP = page.evaluate(() => window.__app.facilities.scout());
+  await page.waitForSelector('text=Red de ojeadores');
+  await page.click('text=Buscar');
+  await sleep(300);
+  check(await page.evaluate(() => window.__app.game.state.scout.leads.length >= 1), 'Búsqueda de ojeadores genera una pista');
+  await closeModals(); await sP;
+
+  // Vista móvil
+  await page.setViewportSize({ width: 390, height: 844 });
+  await sleep(300);
+  await page.evaluate(() => { window.__app.openMenu('players'); });
+  await sleep(300);
+  await shot('16_mobile_menu');
+  await page.evaluate(() => window.__app.menu.close());
+
   await closeModals();
-  await shot('13_end');
+  await shot('17_end');
   check(errors.length === 0, `Sin errores de consola${errors.length ? `:\n  ${errors.join('\n  ')}` : ''}`);
   await browser.close();
 } catch (err) {

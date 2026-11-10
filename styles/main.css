@@ -352,6 +352,7 @@ kbd { background: #000a; border: 1px solid #fff5; border-radius: 4px; padding: 0
   .nav-btn { white-space: nowrap; }
   .nav-btn.close { margin-top: 0; }
   .split, .team-tab { grid-template-columns: 1fr; }
+  .list-col { max-height: 38vh; }
   .enc-field { grid-template-columns: 1fr; }
   .enc-vs { font-size: 1.6rem; text-align: center; }
   .hud-goal { display: none; }

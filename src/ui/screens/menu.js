@@ -43,7 +43,7 @@ export class Menu {
     this.nav = h('div', { class: 'menu-nav' });
     this.el = h('div', { class: 'menu-overlay' }, h('div', { class: 'menu' }, this.nav, this.body));
     this.app.uiLayer.appendChild(this.el);
-    this.keyHandler = (e) => { if (e.key === 'Escape' && !document.querySelector('.modal-overlay')) this.close(); };
+    this.keyHandler = (e) => { if (e.key === 'Escape' && !document.querySelector('.modal-overlay')) { e.stopPropagation(); this.close(); } };
     document.addEventListener('keydown', this.keyHandler);
     this.promise = new Promise((r) => { this.resolve = r; });
     this.show(tab);
