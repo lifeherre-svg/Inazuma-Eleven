@@ -29,7 +29,7 @@ export function createNewState({ name = 'Entrenador', coachId = 'estratega', ava
     playtime: 0,
     day: 1,
     flags: {},
-    location: { map: 'villa_rayo', x: 12, y: 15, dir: 'down' },
+    location: { map: 'villa_rayo', x: 4, y: 13, dir: 'down' },
     roster: [],
     team: {
       formationId: 'f442',

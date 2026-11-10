@@ -93,7 +93,14 @@ const villa_rayo = {
       ] },
     ] },
     door('club', 9, 7, 'Sala del club', [
-      { if: { flag: 'got_key' }, then: [{ say: 'La sala del club huele a cuero viejo y a sueños nuevos.', who: 'Sala del club' }, { open: 'team' }],
+      { if: { flag: 'got_key' }, then: [
+        { say: 'La sala del club huele a cuero viejo y a sueños nuevos.', who: 'Sala del club' },
+        { choice: '¿Qué quieres hacer?', who: 'Sala del club', options: [
+          { text: 'Gestionar el equipo', do: [{ open: 'team' }] },
+          { text: 'Entrenar en el campo del instituto', do: [{ open: 'training' }] },
+          { text: 'Guardar la partida', do: [{ save: true }] },
+          { text: 'Salir' },
+        ] }],
         else: [{ say: 'La puerta está cerrada con llave.', who: 'Sala del club' }] },
     ]),
     door('casa', 4, 12, 'Casa', [...heal('Mamá'), { save: true }]),

@@ -72,10 +72,7 @@ async function runCommand(game, cmd, host, ctx) {
   }
   if (cmd.flag) return setFlag(game, cmd.flag);
   if (cmd.unflag) { delete state.flags[cmd.unflag]; return; }
-  if (cmd.give) {
-    giveItem(game, cmd.give.item, cmd.give.qty || 1);
-    return host.notify?.(`Has recibido: ${cmd.give.qty || 1}× ${host.itemName?.(cmd.give.item) || cmd.give.item}`);
-  }
+  if (cmd.give) { giveItem(game, cmd.give.item, cmd.give.qty || 1); return; } // el aviso lo emite el bus (ITEM_GAINED)
   if (cmd.take) { removeItem(state, cmd.take.item, cmd.take.qty || 1); return; }
   if (cmd.money) {
     addMoney(game, cmd.money);
@@ -83,12 +80,10 @@ async function runCommand(game, cmd, host, ctx) {
   }
   if (cmd.player) {
     const r = addPlayerToRoster(game, cmd.player.id, cmd.player.level || 5, cmd.player.source || 'historia');
-    return host.notify?.(r.ok ? `¡Nuevo jugador en el equipo!` : r.reason, r.ok ? { player: r.player } : null);
-  }
-  if (cmd.quest) {
-    if (startQuest(game, cmd.quest)) return host.notify?.('Nueva misión añadida', { quest: cmd.quest });
+    if (!r.ok) host.notify?.(r.reason); // el éxito lo anuncia el bus (RECRUITED)
     return;
   }
+  if (cmd.quest) { startQuest(game, cmd.quest); return; } // aviso vía QUEST_STARTED
   if (cmd.completeQuest) { if (isQuestActive(state, cmd.completeQuest)) completeQuest(game, cmd.completeQuest); return; }
   if (cmd.match) {
     const res = await host.match(cmd.match);

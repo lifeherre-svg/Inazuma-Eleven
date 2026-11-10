@@ -102,5 +102,5 @@ export function sellItem(game, itemId) {
   if (!removeItem(game.state, itemId)) return { ok: false, message: 'No tienes ese objeto.' };
   const value = Math.floor(item.price / 2);
   game.state.money += value;
-  return { ok: true, message: `Vendido por ${value} ₽.` };
+  return { ok: true, message: `Vendido por ${value} monedas.` };
 }
