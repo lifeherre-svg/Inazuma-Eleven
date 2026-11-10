@@ -510,6 +510,7 @@ export class MatchEngine {
         team: p.team,
         tech: techInfo ? { id: techInfo.id, level: techInfo.level } : null,
         techName: techInfo?.name || null,
+        techAnim: techInfo?.anim || null,
         stats: shooterStats,
         element: p.element,
         origin: { x: p.x, y: p.y },
@@ -579,7 +580,10 @@ export class MatchEngine {
       { stats: gk.stats, element: gk.element, tech: gkTech, staminaMul: this.staminaMul(gk) },
       distance, { shotMul: s.shotMul });
     this.teams[s.team].onTarget++;
-    if (gkTech) this.emit('tech', { team: defTeam, player: gk.name, playerId: gk.id, tech: this.techInfo(gkTech), category: 'keeper', x: gk.x, y: gk.y, short: true });
+    if (gkTech) {
+      this.emit('tech', { team: defTeam, player: gk.name, playerId: gk.id, tech: this.techInfo(gkTech), category: 'keeper', x: gk.x, y: gk.y, short: true });
+      this.freeze = MATCH.cinematicTime * 0.75;
+    }
     if (r.goal) {
       this.emit('keeperBeaten', { team: defTeam, player: gk.name });
       // El balón sigue hacia la red.

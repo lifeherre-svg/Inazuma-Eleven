@@ -107,7 +107,7 @@ export function attachQuestSystem(game) {
     // Objetivos de estado: revisar ante cualquier cambio relevante.
     game.bus.on(EVT.FLAG_SET, () => bump(game, () => false)),
     game.bus.on(EVT.ITEM_GAINED, () => bump(game, () => false)),
-    game.bus.on(EVT.LEVEL_UP, () => bump(game, () => false)),
+    game.bus.on(EVT.LEVEL_UP, ({ report }) => bump(game, (o) => o.type === 'learnTech', report?.learned?.length || 0)),
     game.bus.on(EVT.SEEN, () => bump(game, () => false)),
   ];
   // Misiones que empiezan automáticamente cuando se cumplen sus requisitos.
