@@ -1,0 +1,17 @@
+{
+  "name": "ultimate-legends-futbol-rpg",
+  "version": "1.0.0",
+  "description": "Ultimate Legends – RPG de fútbol con exploración, colección y partidos en tiempo real (HTML5, sin dependencias).",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node tools/server.js",
+    "test": "node --test tests/",
+    "check": "node tools/validate-data.js",
+    "e2e": "node tools/e2e.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "UNLICENSED"
+}
