@@ -171,6 +171,7 @@ function row(label, a, b) { return h('tr', {}, h('td', {}, a), h('th', {}, label
 
 export class MatchScene {
   constructor(app, team, level, onEnd) {
+    this.touch = true;
     this.app = app;
     this.team = team;
     this.onEnd = onEnd;

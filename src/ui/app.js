@@ -68,6 +68,8 @@ export class App {
   setScene(scene) {
     this.scene?.exit?.();
     this.scene = scene;
+    // Los controles táctiles solo se muestran en las escenas que los usan (mundo y partido).
+    document.body.dataset.touch = scene.touch ? 'on' : 'off';
     scene.enter?.();
   }
 
