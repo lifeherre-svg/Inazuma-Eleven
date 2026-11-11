@@ -66,9 +66,13 @@ export class Menu {
     const st = this.state;
     clear(this.nav).append(
       h('div', { class: 'menu-profile' }, h('b', {}, st.profile.name), h('div', { class: 'small' }, fmtMoney(st.money)), h('div', { class: 'small muted' }, `Día ${st.day} · ${fmtTime(st.playtime)}`)),
-      ...TABS.map(([id, label]) => h('button', { class: `nav-btn ${id === tab ? 'active' : ''}`, onclick: () => { audio.play('click'); this.show(id); } }, label)),
-      h('button', { class: 'nav-btn close', onclick: () => this.close() }, '✕ Cerrar (ESC)'),
-      h('button', { class: 'nav-btn', onclick: async () => { if (await confirmModal('Salir al título', 'Se guardará automáticamente. ¿Salir?')) { this.close(); this.app.toTitle(); } } }, '⏏ Menú principal'));
+      ...TABS.map(([id, label]) => {
+        const [icon, ...text] = label.split(' ');
+        return h('button', { class: `nav-btn ${id === tab ? 'active' : ''}`, title: text.join(' '), 'aria-label': text.join(' '), onclick: () => { audio.play('click'); this.show(id); } },
+          h('span', { class: 'nav-icon' }, icon), h('span', { class: 'nav-label' }, text.join(' ')));
+      }),
+      h('button', { class: 'nav-btn close', 'aria-label': 'Cerrar', onclick: () => this.close() }, h('span', { class: 'nav-icon' }, '✕'), h('span', { class: 'nav-label' }, 'Cerrar')),
+      h('button', { class: 'nav-btn', 'aria-label': 'Menú principal', onclick: async () => { if (await confirmModal('Salir al título', 'Se guardará automáticamente. ¿Salir?')) { this.close(); this.app.toTitle(); } } }, h('span', { class: 'nav-icon' }, '⏏'), h('span', { class: 'nav-label' }, 'Título')));
     clear(this.body);
     const render = {
       team: () => this.teamTab(), players: () => this.playersTab(), techs: () => this.techsTab(), inventory: () => this.inventoryTab(),

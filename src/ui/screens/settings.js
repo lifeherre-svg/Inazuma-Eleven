@@ -2,13 +2,12 @@
 
 import { h } from '../dom.js';
 import { DIFFICULTY, DEFAULT_SETTINGS } from '../../config.js';
-import { audio } from '../../audio/audio.js';
 
 export function settingsPanel(app, fallback = null) {
   const s = app.game?.state.settings || fallback || { ...DEFAULT_SETTINGS };
   const persist = () => {
     try { localStorage.setItem('ul_settings', JSON.stringify(s)); } catch { /* sin almacenamiento */ }
-    audio.setVolumes(s.musicVolume, s.sfxVolume);
+    app.applySettings(s);
   };
   const range = (label, key, min, max, step, fmt = (v) => v) => {
     const val = h('span', { class: 'set-val' }, fmt(s[key]));
@@ -29,9 +28,13 @@ export function settingsPanel(app, fallback = null) {
     select('Duración de cada parte', 'halfDurationSec', [[90, '1:30 (rápido)'], [150, '2:30 (normal)'], [240, '4:00 (largo)'], [360, '6:00 (simulación)']]),
     toggle('Duelos tácticos (elegir respuesta al ser presionado)', 'duelPrompts'),
     toggle('Cambio automático de jugador al defender', 'autoSwitch'),
-    toggle('Vibración de pantalla', 'screenShake'),
+    toggle('Temblor de cámara en goles y técnicas', 'screenShake'),
     h('h3', {}, 'Interfaz'),
     select('Velocidad del texto', 'textSpeed', [[1, 'Lenta'], [2, 'Normal'], [3, 'Rápida']]),
+    select('Tamaño de la interfaz', 'uiScale', [[0.85, 'Pequeño'], [1, 'Normal'], [1.15, 'Grande'], [1.3, 'Muy grande']]),
+    toggle('Vibración (móviles)', 'vibration'),
     toggle('Mostrar FPS', 'showFps'),
-    h('p', { class: 'small muted' }, 'Controles: Flechas/WASD mover · Shift sprint · J pase (en defensa: cambiar jugador) · K tiro (en defensa: entrada) · I técnica de tiro/combinada · U técnica de regate/defensa · L regate en duelos · P/ESC pausa y tácticas.'));
+    h('p', { class: 'small muted' }, app.isTouch
+      ? 'Controles táctiles: joystick para moverte · Correr (mantener) · en el partido: Pase/Cambiar, Tiro/Entrada, Técnica (tiro especial o combinada) y Regate+/Defensa+ (técnica de regate o defensiva). Botón Atrás: cerrar, pausar o abrir el menú.'
+      : 'Controles: Flechas/WASD mover · Shift sprint · J pase (en defensa: cambiar jugador) · K tiro (en defensa: entrada) · I técnica de tiro/combinada · U técnica de regate/defensa · L regate en duelos · P/ESC pausa y tácticas.'));
 }

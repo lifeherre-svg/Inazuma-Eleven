@@ -3,6 +3,8 @@
 
 import { GAME } from '../config.js';
 import { Input, mountTouchControls } from '../core/input.js';
+import { haptic, setHapticsEnabled } from '../core/haptics.js';
+import { DEFAULT_SETTINGS } from '../config.js';
 import { EVT } from '../core/events.js';
 import { audio } from '../audio/audio.js';
 import { SaveManager } from '../systems/save.js';
@@ -11,7 +13,7 @@ import { attachQuestSystem, getQuest } from '../systems/quests.js';
 import { attachStorySystem, syncChapter } from '../systems/story.js';
 import { getTechnique, getPlayerTemplate, getItem } from '../systems/database.js';
 import { h } from './dom.js';
-import { toast, titleCard } from './components.js';
+import { toast, titleCard, closeTopModal } from './components.js';
 import { TitleScene } from './screens/title.js';
 import { NewGameScene } from './screens/newgame.js';
 import { WorldScene } from './screens/world-scene.js';
@@ -43,7 +45,19 @@ export class App {
     const unlock = () => { audio.unlock(); window.removeEventListener('pointerdown', unlock); window.removeEventListener('keydown', unlock); };
     window.addEventListener('pointerdown', unlock);
     window.addEventListener('keydown', unlock);
-    if (matchMedia('(pointer: coarse)').matches) mountTouchControls(root, this.input);
+    // Controles táctiles en dispositivos táctiles (aparecen solo en mundo y partido).
+    this.isTouch = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0 && !matchMedia('(hover: hover)').matches;
+    document.body.classList.toggle('is-touch', this.isTouch);
+    if (this.isTouch) mountTouchControls(root, this.input);
+    this.applySettings(this.storedSettings());
+    // Si la app pasa a segundo plano: pausar el partido, silenciar el audio y guardar.
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        audio.ctx?.suspend?.();
+        this.autosave(true);
+        if (this.scene?.constructor?.name === 'MatchScene' && !this.scene.paused && !this.scene.ended) this.scene.pause();
+      } else audio.ctx?.resume?.();
+    });
     window.addEventListener('error', (e) => this.reportError(e.error || e.message));
     window.addEventListener('unhandledrejection', (e) => this.reportError(e.reason));
     window.addEventListener('beforeunload', () => this.autosave(true));
@@ -53,6 +67,43 @@ export class App {
     console.error(err);
     toast(`Error inesperado: ${err?.message || err}. Tu progreso se ha autoguardado.`, { type: 'error', duration: 6000 });
     try { this.autosave(true); } catch { /* nada */ }
+  }
+
+  /** Ajustes guardados fuera de una partida (pantalla de título). */
+  storedSettings() {
+    try { return { ...DEFAULT_SETTINGS, ...JSON.parse(localStorage.getItem('ul_settings') || '{}') }; } catch { return { ...DEFAULT_SETTINGS }; }
+  }
+
+  /** Aplica los ajustes que afectan a la interfaz (escala, vibración, audio). */
+  applySettings(s) {
+    document.documentElement.style.setProperty('--ui-scale', String(s.uiScale || 1));
+    setHapticsEnabled(s.vibration !== false);
+    audio.setVolumes(s.musicVolume, s.sfxVolume);
+  }
+
+  /**
+   * Botón "Atrás" (Android) o Escape: cierra la capa superior.
+   * Devuelve false cuando no hay nada que cerrar (en el título: salir de la app).
+   */
+  handleBack() {
+    const overlays = document.querySelectorAll('.modal-overlay');
+    if (overlays.length) {
+      const top = overlays[overlays.length - 1];
+      if (top.dismissable !== false && top.closeModal) closeTopModal(null);
+      return true;
+    }
+    if (this.menu.el) { this.menu.close(); return true; }
+    const sc = this.scene;
+    const name = sc?.constructor?.name;
+    if (name === 'TitleScene') return false;
+    if (name === 'NewGameScene') { this.setScene(new TitleScene(this)); return true; }
+    if (name === 'MatchScene') { sc.pause(); return true; }
+    if (name === 'WorldScene') {
+      if (sc.dialogue?.open) sc.dialogue.advance();
+      else if (!sc.busy && !this.locked) this.openMenu();
+      return true;
+    }
+    return true;
   }
 
   resize() {
@@ -70,6 +121,7 @@ export class App {
     this.scene = scene;
     // Los controles táctiles solo se muestran en las escenas que los usan (mundo y partido).
     document.body.dataset.touch = scene.touch ? 'on' : 'off';
+    document.body.dataset.touchMode = scene.touch || '';
     scene.enter?.();
   }
 
@@ -103,13 +155,14 @@ export class App {
     this.detach = [];
     this.game = createGameContext(state);
     const bus = this.game.bus;
-    audio.setVolumes(state.settings.musicVolume, state.settings.sfxVolume);
+    this.applySettings(state.settings);
     syncChapter(this.game);
     this.detach.push(attachQuestSystem(this.game));
     this.detach.push(attachStorySystem(this.game, (ch) => toast(`Nuevo capítulo: ${ch.title}`, { icon: '📖', type: 'story', duration: 4500 })));
     this.detach.push(bus.on(EVT.QUEST_COMPLETED, ({ name }) => { audio.play('levelup'); toast(`Misión completada: ${name}`, { icon: '✅', type: 'success' }); }));
     this.detach.push(bus.on(EVT.QUEST_STARTED, ({ id }) => toast(`Nueva misión: ${getQuest(id).name}`, { icon: '📜' })));
-    this.detach.push(bus.on(EVT.RECRUITED, ({ templateId }) => { audio.play('recruit'); const t = getPlayerTemplate(templateId); toast(`¡${t.name} ${t.surname} se une al equipo!`, { icon: '🤝', type: 'success' }); }));
+    this.detach.push(bus.on(EVT.LEVEL_UP, () => haptic(20)));
+    this.detach.push(bus.on(EVT.RECRUITED, ({ templateId }) => { audio.play('recruit'); haptic([30, 40, 60]); const t = getPlayerTemplate(templateId); toast(`¡${t.name} ${t.surname} se une al equipo!`, { icon: '🤝', type: 'success' }); }));
     this.detach.push(bus.on(EVT.TECH_LEARNED, ({ techId }) => toast(`Nueva técnica: ${getTechnique(techId).name}`, { icon: '✨', type: 'success' })));
     this.detach.push(bus.on(EVT.TOURNAMENT_WON, () => audio.play('recruit')));
     this.detach.push(bus.on(EVT.ITEM_GAINED, ({ id, qty }) => { audio.play('item'); toast(`${qty}× ${getItem(id).name}`, { icon: getItem(id).icon }); }));

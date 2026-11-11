@@ -11,6 +11,7 @@ import { APPROACHES, PERSONALITIES } from '../../data/personalities.js';
 import { RARITY, ENCOUNTER } from '../../config.js';
 import { portrait, elementBadge, rarityBadge, posBadge, modal, toast } from '../components.js';
 import { audio } from '../../audio/audio.js';
+import { haptic } from '../../core/haptics.js';
 
 export class EncounterScene {
   constructor(app, { templateId, level, kind, onEnd }) {
@@ -70,6 +71,7 @@ export class EncounterScene {
     const fx = this.enc.lastFx;
     if (fx) {
       audio.play('tech');
+      haptic(40);
       await this.techBanner(fx.tech, fx.by);
     } else audio.play(action.type === 'shoot' ? 'shot' : 'kick');
     this.newLines = this.enc.log.length - before;

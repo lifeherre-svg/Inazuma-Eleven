@@ -88,7 +88,7 @@ export class Facilities {
       const st = this.state;
       const players = st.roster.slice().sort((a, b) => a.fatigue - b.fatigue);
       clear(body).append(
-        h('p', { class: 'small muted' }, 'Elige un jugador y un ejercicio. Durante el minijuego pulsa ESPACIO (o el botón) cuando el marcador esté en la zona dorada. Mejor precisión = más mejora. El entrenamiento genera fatiga: descansa en casa, en el hotel o en los refugios.'),
+        h('p', { class: 'small muted' }, `Elige un jugador y un ejercicio. Durante el minijuego ${this.app.isTouch ? 'toca el botón' : 'pulsa ESPACIO (o el botón)'} cuando el marcador esté en la zona dorada. Mejor precisión = más mejora. El entrenamiento genera fatiga: descansa en casa, en el hotel o en los refugios.`),
         h('div', { class: 'split' },
           h('div', { class: 'list-col' }, players.map((p) => playerCard(p, { compact: true, selected: selected === p.uid, onclick: () => { selected = p.uid; render(); },
             extra: h('span', { class: 'small', style: { color: fatigueLabel(p.fatigue).color } }, `${Math.round(p.fatigue)}%`) }))),
@@ -185,7 +185,7 @@ export function timingMinigame(drillId) {
     const marker = h('div', { class: 'mg-marker' });
     const zone = h('div', { class: 'mg-zone' });
     const info = h('div', { class: 'mg-info' }, `Intento 1/3`);
-    const btn = h('button', { class: 'btn big primary' }, '¡AHORA! (ESPACIO)');
+    const btn = h('button', { class: 'btn big primary' }, document.body.classList.contains('is-touch') ? '¡AHORA!' : '¡AHORA! (ESPACIO)');
     const overlay = h('div', { class: 'modal-overlay' }, h('div', { class: 'modal minigame' },
       h('h2', {}, `${tr.icon} ${tr.name}`), h('p', { class: 'small' }, tr.desc),
       h('div', { class: 'mg-track' }, zone, marker), info, btn));
@@ -218,7 +218,8 @@ export function timingMinigame(drillId) {
     };
     const onKey = (e) => { if (e.code === 'Space' || e.code === 'Enter') { e.preventDefault(); hit(); } };
     document.addEventListener('keydown', onKey);
-    btn.onclick = hit;
+    // pointerdown: respuesta inmediata en pantallas táctiles (sin esperar al 'click').
+    btn.addEventListener('pointerdown', (e) => { e.preventDefault(); hit(); });
   });
 }
 

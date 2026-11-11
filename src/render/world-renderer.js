@@ -149,7 +149,9 @@ export class WorldRenderer {
     const { ctx, canvas } = this;
     const map = world.map;
     if (this.layerMap !== map) this.buildLayer(map);
-    const scale = Math.max(1, canvas.height / (TILE * 13));
+    // Zoom adaptativo: muestra ~200 casillas en cualquier proporción de pantalla
+    // (vertical, horizontal, tablet o escritorio), con un mínimo legible.
+    const scale = Math.max(1, Math.sqrt((canvas.width * canvas.height) / (TILE * TILE * 200)));
     const p = world.player;
     const vw = canvas.width / scale, vh = canvas.height / scale;
     let camX = (p.px + 0.5) * TILE - vw / 2;

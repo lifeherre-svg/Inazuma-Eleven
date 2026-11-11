@@ -35,7 +35,7 @@ export class TitleScene {
         h('button', { class: 'btn big', onclick: () => this.loadMenu() }, '💾 Cargar partida'),
         h('button', { class: 'btn big', onclick: () => this.settings() }, '⚙ Configuración'),
         h('button', { class: 'btn big', onclick: () => this.credits() }, '★ Créditos')),
-      h('div', { class: 'title-foot' }, `v${GAME.version} · Contenido original inspirado en el género de fútbol RPG · Pulsa cualquier tecla para activar el sonido`));
+      h('div', { class: 'title-foot' }, `v${GAME.version} · Contenido original inspirado en el género de fútbol RPG · ${app.isTouch ? 'Toca la pantalla' : 'Pulsa cualquier tecla'} para activar el sonido`));
     app.uiLayer.appendChild(this.el);
   }
 

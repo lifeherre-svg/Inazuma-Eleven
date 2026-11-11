@@ -128,6 +128,7 @@ export function modal({ title, body, buttons = [{ text: 'Cerrar', value: null }]
         h('div', { class: 'modal-body' }, body),
         h('div', { class: 'modal-buttons' }, buttons.map((b) => h('button', { class: `btn ${b.cls || ''}`, disabled: b.disabled, onclick: () => close(b.value) }, b.text)))));
     overlay.closeModal = close;
+    overlay.dismissable = dismissable;
     document.body.appendChild(overlay);
     document.addEventListener('keydown', onKey);
     overlay.querySelector('.modal-buttons .btn:not([disabled])')?.focus();

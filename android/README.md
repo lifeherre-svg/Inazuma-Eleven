@@ -4,10 +4,13 @@ Contenedor nativo (WebView) que empaqueta el juego web en un APK. Los archivos d
 (`index.html`, `src/`, `styles/`) se copian en los assets durante la compilación, así que el APK
 siempre contiene la versión actual del juego: no hay código duplicado.
 
-- Funciona **sin conexión** (solo usa Internet para cargar las fuentes tipográficas si hay red).
-- Pantalla completa en horizontal, controles táctiles en pantalla.
-- Botón **Atrás** = Escape: cierra ventanas, abre el menú o pausa el partido.
-- Las partidas se guardan en el almacenamiento de la app y se autoguardan al salir.
+- Funciona **sin conexión**: juego y fuentes van dentro del APK; no pide permiso de Internet.
+- Pantalla completa e inmersiva en horizontal, con la pantalla siempre encendida mientras juegas.
+- **Márgenes seguros**: la app comunica al juego el tamaño del notch/recorte de cámara (variables CSS `--android-inset-*`) para que nada quede tapado.
+- **Controles táctiles**: joystick analógico y botones contextuales; multitáctil (moverse y pulsar a la vez).
+- **Botón Atrás**: cierra la ventana o menú superior, pausa el partido o abre el menú; en la pantalla de título sale de la app (`window.__app.handleBack()`).
+- **Vibración** en goles, técnicas, entradas y fichajes (desactivable en Ajustes).
+- Al pasar a segundo plano: autoguardado, pausa del partido y audio en silencio.
 
 ## Instalar
 

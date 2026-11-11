@@ -4,7 +4,7 @@ RPG de fútbol con **exploración**, **colección de jugadores**, **supertécnic
 
 > **Sobre la propiedad intelectual:** todos los personajes, equipos, técnicas, escenarios, gráficos y música de este proyecto son **originales** y generados por código. El juego no incluye nombres, personajes ni recursos protegidos. Toda la información de contenido está separada de la lógica (`src/data/`), de modo que si cuentas con una licencia puedes sustituir nombres, retratos y técnicas sin tocar el motor (ver [docs/CONTENT_GUIDE.md](docs/CONTENT_GUIDE.md)).
 
-![tecnología](https://img.shields.io/badge/HTML5-Canvas-orange) ![deps](https://img.shields.io/badge/dependencias-0-brightgreen) ![tests](https://img.shields.io/badge/tests-38%20unit%20%2B%20e2e-blue)
+![tecnología](https://img.shields.io/badge/HTML5-Canvas-orange) ![deps](https://img.shields.io/badge/dependencias-0-brightgreen) ![tests](https://img.shields.io/badge/tests-38%20unit%20%2B%20e2e-blue) ![android](https://img.shields.io/badge/Android-APK-3ddc84)
 
 ---
 
@@ -26,23 +26,33 @@ También funciona en cualquier hosting estático (GitHub Pages, Netlify, `python
 | `npm test` | 38 tests unitarios y de integración (incluye una **campaña completa automática**) |
 | `npm run check` | Valida todos los datos: referencias cruzadas, mapas alcanzables, NPC en casillas válidas… |
 | `npm run e2e` | Prueba de extremo a extremo en Chromium con Playwright (requiere `playwright` instalado). Con `-- --shots=dir` guarda capturas |
+| `npm run e2e:touch` | Prueba e2e táctil emulando un móvil Android: joystick, botones contextuales, botón Atrás, escala de interfaz |
+| `npm run audit` | Auditoría responsive: 14 pantallas × 7 dispositivos (móvil vertical/horizontal, tablet, portátil, Full HD); detecta desbordamientos, elementos fuera de pantalla y botones demasiado pequeños para el dedo |
+| `npm run apk` | Compila la APK de Android en `dist/UltimateLegends.apk` (ver [android/README.md](android/README.md)) |
 
 No hay paso de compilación: el código fuente es lo que se ejecuta.
+
+## 📱 Android y cualquier pantalla
+
+- **APK lista para instalar** en `dist/UltimateLegends.apk` (Android 8.0+), funciona sin conexión. Detalles en [android/README.md](android/README.md).
+- **Interfaz adaptable** a móvil en vertical y horizontal, tablet, portátil y monitores grandes: tamaños que escalan con la pantalla, márgenes seguros para notch, ventanas con botones siempre visibles y menú que se convierte en barra de iconos en pantallas bajas.
+- **Controles táctiles**: joystick analógico y botones contextuales (Pase/Cambiar, Tiro/Entrada, Técnica, Regate+/Defensa+, Correr); en el mundo, Hablar y Correr. Se ocultan solos con menús, diálogos y cinemáticas.
+- **Ajustes**: tamaño de la interfaz (4 niveles) y vibración háptica.
 
 ## 🎮 Controles
 
 | Acción | Teclado | Táctil |
 |---|---|---|
-| Moverse | Flechas / WASD | Cruceta |
-| Correr / sprint | Shift | — |
-| Hablar / confirmar | Espacio / Enter / E | OK |
-| Menú | Esc / M | ☰ |
+| Moverse | Flechas / WASD | Joystick |
+| Correr / sprint | Shift | Correr (mantener) |
+| Hablar / confirmar | Espacio / Enter / E | Hablar · tocar el diálogo |
+| Menú / volver | Esc / M | Botón Menú · botón Atrás de Android |
 | **Partido** – Pase (atacando) / Cambiar jugador (defendiendo) | J | J |
 | **Partido** – Tiro (atacando) / Entrada (defendiendo) | K | K |
 | **Partido** – Técnica de tiro o combinada | I | I |
 | **Partido** – Técnica de regate (atacando) / defensiva (defendiendo) | U | U |
-| **Partido** – Regate normal en un duelo | L | — |
-| **Partido** – Pausa, tácticas y cambios | P / Esc | Botón Pausa |
+| **Partido** – Regate normal en un duelo | L | Botón del duelo |
+| **Partido** – Pausa, tácticas y cambios | P / Esc | Botón Pausa · botón Atrás |
 
 ## ✨ Qué incluye
 

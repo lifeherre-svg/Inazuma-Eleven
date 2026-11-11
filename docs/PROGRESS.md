@@ -36,11 +36,29 @@ Las skills disponibles en el entorno de desarrollo (documentos, artefactos, visu
 - Avisos duplicados (guion + bus) y apilados sin límite → un único origen y máximo 4 visibles.
 - Escenario y NPC mal colocados detectados por el validador (pistas sobre NPC, objetos en casillas sólidas).
 
+## Adaptación a Android y a cualquier pantalla
+
+| Tarea | Estado |
+|---|---|
+| Interfaz responsive (rem + vmin, escala configurable, márgenes seguros, 4 puntos de corte) | ✅ |
+| Ventanas con cabecera y botones fijos y contenido desplazable | ✅ |
+| Menú: barra lateral (escritorio), barra de iconos (móvil horizontal), pestañas superiores (móvil vertical) | ✅ |
+| Cámaras del mundo y del partido adaptadas a cualquier proporción | ✅ |
+| Joystick analógico + botones contextuales multitáctil | ✅ |
+| Botón Atrás, vibración, segundo plano, notch (nativo Android) | ✅ |
+| Fuentes incluidas (OFL) para funcionar sin conexión | ✅ |
+| Auditoría responsive automática (`npm run audit`): 14 pantallas × 7 dispositivos sin problemas | ✅ |
+| E2E táctil (`npm run e2e:touch`): 22/22 | ✅ |
+
+Errores corregidos en esta fase: botones de acción del desafío fuera de pantalla en móvil vertical, controles táctiles que tapaban los menús, el panel de duelo y el nombre de las técnicas, pestañas del menú por debajo del tamaño táctil mínimo, pie del título superpuesto a «Créditos», textos de teclado en dispositivos táctiles.
+
 ## Limitaciones conocidas (decisiones conscientes)
 - Sin fuera de juego ni faltas (diseño arcade).
 - El usuario controla al equipo local; los porteros propios los controla la IA.
 - Arte y música procedurales originales (placeholders de calidad sustituibles por recursos con licencia).
 - La e2e necesita `playwright` disponible en el sistema.
+- La APK no se ha probado en un dispositivo físico ni en emulador (no disponibles en el entorno de desarrollo); se verificó en Chromium emulando móviles con pantalla táctil y con `apksigner`/`aapt2`.
+- La APK fija la orientación horizontal (el campo es horizontal); la versión web admite también vertical.
 
 ## Siguientes pasos sugeridos
 1. Arte definitivo: sustituir `portrait()` / `drawChibi()` por sprites cuando existan (ver CONTENT_GUIDE).

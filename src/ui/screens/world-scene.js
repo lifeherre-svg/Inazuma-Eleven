@@ -19,7 +19,7 @@ import { EVT } from '../../core/events.js';
 
 export class WorldScene {
   constructor(app) {
-    this.touch = true;
+    this.touch = 'world';           // controles táctiles: joystick + Hablar + Correr
     this.app = app;
     this.world = new World(app.game);
     this.renderer = new WorldRenderer(app.canvas);

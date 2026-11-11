@@ -17,6 +17,7 @@ import { OFFENSE_STRATEGIES, DEFENSE_STRATEGIES, PLAY_STYLES } from '../../data/
 import { ITEMS } from '../../data/items.js';
 import { RARITY } from '../../config.js';
 import { audio } from '../../audio/audio.js';
+import { haptic } from '../../core/haptics.js';
 import { portrait, modal, toast, elementBadge, rarityBadge, posBadge, closeTopModal } from '../components.js';
 import { teamAverageLevel } from '../../systems/game-state.js';
 
@@ -64,7 +65,9 @@ export class MatchFlow {
       opts.tournamentName ? h('p', { class: 'pm-tour' }, `🏆 ${opts.tournamentName}`) : null,
       h('p', {}, 'Dificultad estimada: ', h('b', { style: { color: risk.c } }, risk.t)),
       h('div', { class: 'pm-stars' }, h('b', {}, 'Jugadores a vigilar: '), spec.starters.filter((p) => team.stars.includes(p.templateId)).map((p) => h('span', { class: 'pm-star' }, portrait(p.templateId, { size: 36, jersey: team.colors.primary, jersey2: team.colors.secondary }), p.name))),
-      h('p', { class: 'small muted' }, 'Controles: mover WASD/flechas · Shift sprint · J pase/cambiar · K tiro/entrada · I técnica de tiro · U técnica de regate o defensa · P pausa.'));
+      h('p', { class: 'small muted' }, this.app.isTouch
+        ? 'Controles: joystick para moverte · Pase/Cambiar · Tiro/Entrada · Técnica (tiro especial) · Regate+/Defensa+ (técnica) · mantén Correr para esprintar · botón Atrás o Pausa para tácticas.'
+        : 'Controles: mover WASD/flechas · Shift sprint · J pase/cambiar · K tiro/entrada · I técnica de tiro · U técnica de regate o defensa · P pausa.'));
     return modal({
       title: 'Previa del partido', body, cls: 'wide', dismissable: false,
       buttons: [
@@ -171,7 +174,7 @@ function row(label, a, b) { return h('tr', {}, h('td', {}, a), h('th', {}, label
 
 export class MatchScene {
   constructor(app, team, level, onEnd) {
-    this.touch = true;
+    this.touch = 'match';           // controles táctiles: joystick + acciones de partido
     this.app = app;
     this.team = team;
     this.onEnd = onEnd;
@@ -198,7 +201,7 @@ export class MatchScene {
     this.buildHud();
   }
 
-  exit() { this.hud?.remove(); this.app.unlock(); }
+  exit() { this.hud?.remove(); this.app.unlock(); delete document.body.dataset.ball; document.body.classList.remove('cinematic'); }
 
   buildHud() {
     const e = this.engine;
@@ -211,7 +214,9 @@ export class MatchScene {
     this.playerEl = h('div', { class: 'ctrl-panel' });
     this.tickerEl = h('div', { class: 'ticker' });
     this.duelEl = h('div', { class: 'duel-prompt hidden' });
-    this.hud.append(this.scoreEl, this.playerEl, this.tickerEl, this.duelEl,
+    // En móviles en vertical, sugerir girar el dispositivo (el campo es horizontal).
+    const rotate = h('div', { class: 'rotate-hint', onclick: () => rotate.remove() }, '📱↻ Gira el móvil para ver mejor el campo');
+    this.hud.append(this.scoreEl, this.playerEl, this.tickerEl, this.duelEl, rotate,
       h('button', { class: 'hud-menu-btn', onclick: () => this.pause() }, '⏸ Pausa'));
   }
 
@@ -251,12 +256,12 @@ export class MatchScene {
     for (const ev of this.engine.drainEvents()) {
       this.renderer.onEvent(ev, shake);
       switch (ev.type) {
-        case 'goal': audio.play('goal'); this.pushTicker(`⚽ ${ev.minute}' ¡GOL de ${ev.scorer}!${ev.tech ? ` (${ev.tech})` : ''}`); break;
-        case 'tech': audio.play('tech'); this.pushTicker(`⚡ ${ev.player}: ${ev.tech.name}`); break;
+        case 'goal': audio.play('goal'); haptic(ev.team === 0 ? [60, 40, 120] : 120); this.pushTicker(`⚽ ${ev.minute}' ¡GOL de ${ev.scorer}!${ev.tech ? ` (${ev.tech})` : ''}`); break;
+        case 'tech': audio.play('tech'); haptic(40); this.pushTicker(`⚡ ${ev.player}: ${ev.tech.name}`); break;
         case 'shot': if (!ev.tech) audio.play('shot'); break;
         case 'pass': audio.play('kick'); break;
         case 'save': audio.play('save'); this.pushTicker(`🧤 Parada de ${ev.player}`); break;
-        case 'tackle': audio.play('tackle'); break;
+        case 'tackle': audio.play('tackle'); if (ev.team !== 0) haptic(25); break;
         case 'whistle': audio.play('whistle'); break;
         case 'sub': this.pushTicker(`🔁 Entra ${ev.in}, sale ${ev.out}`); break;
         case 'aiAdapt': this.pushTicker(`📋 ${ev.text}`); break;
@@ -304,6 +309,9 @@ export class MatchScene {
       dribble: input.consume('dribble') || (e.duel && input.consume('confirm')),
     };
     e.update(dt, frameInput);
+    // Botones táctiles contextuales: Pase/Tiro con balón, Cambiar/Entrada sin él.
+    const ball = e.ball.owner && e.ball.owner === e.controlled ? 'own' : 'rival';
+    if (document.body.dataset.ball !== ball) document.body.dataset.ball = ball;
     if (e.duel) {
       const bar = this.duelEl.querySelector('.duel-timer div');
       if (bar) bar.style.width = `${(e.duel.timer / 2.6) * 100}%`;
@@ -311,6 +319,8 @@ export class MatchScene {
     this.handleEvents();
     this.renderer.update(dt);
     this.updateHud();
+    // Durante las cinemáticas de técnicas se ocultan los controles táctiles para no tapar el nombre.
+    document.body.classList.toggle('cinematic', !!this.renderer.cinematic);
   }
 
   draw() { this.renderer.draw(); }

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Solo para cargar las fuentes de Google Fonts si hay conexión; el juego funciona sin red. -->
-    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- El juego funciona completamente sin conexión: no necesita permiso de Internet. -->
+    <!-- Vibración háptica en goles, técnicas y entradas (se puede desactivar en Ajustes). -->
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:allowBackup="true"

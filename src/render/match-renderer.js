@@ -119,7 +119,8 @@ export class MatchRenderer {
     this.trail = this.trail.filter((t) => t.life > 0);
   }
 
-  scale() { return this.canvas.height / 470; }
+  /** Zoom: ~470 unidades de alto en horizontal; en vertical garantiza ≥600 de ancho. */
+  scale() { return Math.min(this.canvas.height / 470, this.canvas.width / 600); }
   viewW() { return this.canvas.width / this.scale(); }
   viewH() { return this.canvas.height / this.scale(); }
 
@@ -265,7 +266,7 @@ export class MatchRenderer {
 
   drawMinimap() {
     const ctx = this.ctx;
-    const mw = Math.min(200, this.canvas.width * 0.22), mh = mw * (W / L);
+    const mw = Math.min(this.canvas.width * 0.24, this.canvas.height * 0.32, 220 * (window.devicePixelRatio > 1 ? 1.5 : 1)), mh = mw * (W / L);
     const x0 = this.canvas.width / 2 - mw / 2, y0 = this.canvas.height - mh - 10;
     ctx.globalAlpha = 0.8;
     ctx.fillStyle = '#1e6b36'; ctx.fillRect(x0, y0, mw, mh);

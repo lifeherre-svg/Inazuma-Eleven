@@ -4,7 +4,7 @@
 export const GAME = {
   title: 'ULTIMATE LEGENDS',
   subtitle: 'Fútbol RPG · Leyendas del Relámpago',
-  version: '1.0.0',
+  version: '1.1.0',
   saveVersion: 1,
   maxRoster: 40,
   minPlayersForMatch: 11,
@@ -123,6 +123,8 @@ export const DEFAULT_SETTINGS = {
   showFps: false,
   textSpeed: 2,
   screenShake: true,
+  vibration: true,
+  uiScale: 1,
 };
 
 export const TILE = 32;
